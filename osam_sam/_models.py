@@ -94,6 +94,9 @@ def _generate_mask(
     prompt: types.Prompt,
     image_size: int,
 ):
+    if prompt.points is None or prompt.point_labels is None:
+        raise ValueError("Prompt must contain points and point_labels: %r" % prompt)
+
     onnx_coord = np.concatenate([prompt.points, np.array([[0.0, 0.0]])], axis=0)[
         None, :, :
     ]
