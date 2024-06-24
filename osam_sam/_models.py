@@ -7,7 +7,7 @@ from osam_core import types
 class Sam(types.Model):
     _image_size: int = 1024
 
-    def encode_image(self, image: np.ndarray):
+    def encode_image(self, image: np.ndarray) -> types.ImageEmbedding:
         if image.ndim == 2:
             raise ValueError("Grayscale images are not supported")
         if image.ndim == 3 and image.shape[2] == 4:
@@ -25,16 +25,28 @@ class Sam(types.Model):
             embedding=image_embedding,
         )
 
-    def generate_mask(
-        self,
-        image_embedding: types.ImageEmbedding,
-        prompt: types.Prompt,
-    ) -> np.ndarray:
-        return _generate_mask(
+    def generate(self: "Sam", request: types.GenerateRequest) -> types.GenerateResponse:
+        if request.image_embedding is None:
+            image_embedding = self.encode_image(request.image)
+        else:
+            image_embedding = request.image_embedding
+
+        if prompt.points is None or prompt.point_labels is None:
+            raise ValueError("Prompt must contain points and point_labels: %r", prompt)
+
+        mask = _generate_mask(
             decoder_session=self._inference_sessions["decoder"],
             image_embedding=image_embedding,
             prompt=prompt,
             image_size=self._image_size,
+        )
+
+        return types.GenerateResponse(
+            model=self.name,
+            image_embedding=image_embedding,
+            masks=[mask],
+            bounding_boxes=imgviz.instances.mask_to_bbox([mask]).astype(int).tolist(),
+            texts=None,
         )
 
 

@@ -30,7 +30,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-  "osam-core @ git+https://github.com/wkentaro/osam-core.git@b54b13ea1c093980faaa03beccfc13853dadbb00",
+  "osam-core",
   "Pillow",
 ]
 dynamic = ["readme", "version"]
