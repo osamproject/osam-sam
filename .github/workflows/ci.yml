@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        python-version: ['3.8']
+
+    steps:
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: actions/checkout@v3
+
+    - name: Install make
+      if: matrix.os == 'windows-latest'
+      run: |
+        choco install make
+
+    - name: Install main
+      run: |
+        pip install -e git+https://github.com/osamproject/osam-core.git#egg=osam-core
+        pip install .[test]
+
+    - name: Lint
+      run: |
+        make lint
+
+    # - name: Test
+    #   run: |
+    #     make test
+
+    - name: Install from dist
+      shell: bash
+      run: |
+        make build
+        pip install dist/osam*.tar.gz
+        pip install dist/osam*.whl
