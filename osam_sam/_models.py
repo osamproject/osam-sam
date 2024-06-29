@@ -1,5 +1,6 @@
 import numpy as np
 import PIL.Image
+from loguru import logger
 from osam_core import apis
 from osam_core import types
 
@@ -31,6 +32,27 @@ class Sam(types.Model):
         else:
             image_embedding = request.image_embedding
 
+        if request.prompt is None:
+            prompt = types.Prompt(
+                points=np.array(
+                    [
+                        [
+                            image_embedding.original_width / 2,
+                            image_embedding.original_height / 2,
+                        ]
+                    ],
+                    dtype=np.float32,
+                ),
+                point_labels=np.array([1], dtype=np.int32),
+            )
+            logger.warning(
+                "Prompt is not given, so using the center point as prompt: {prompt!r}",
+                prompt=prompt,
+            )
+        else:
+            prompt = request.prompt
+        del request
+
         if prompt.points is None or prompt.point_labels is None:
             raise ValueError("Prompt must contain points and point_labels: %r", prompt)
 
@@ -40,13 +62,10 @@ class Sam(types.Model):
             prompt=prompt,
             image_size=self._image_size,
         )
-
         return types.GenerateResponse(
             model=self.name,
             image_embedding=image_embedding,
-            masks=[mask],
-            bounding_boxes=imgviz.instances.mask_to_bbox([mask]).astype(int).tolist(),
-            texts=None,
+            annotations=[types.Annotation(mask=mask)],
         )
 
 
