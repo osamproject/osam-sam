@@ -150,8 +150,8 @@ def _generate_mask(
     return mask
 
 
-class Sam91m(Sam):
-    name = "sam:91m"
+class Sam100m(Sam):
+    name = "sam:100m"
 
     _blobs = {
         "encoder": types.Blob(
@@ -165,8 +165,8 @@ class Sam91m(Sam):
     }
 
 
-class Sam308m(Sam):
-    name = "sam:308m"
+class Sam300m(Sam):
+    name = "sam:300m"
 
     _blobs = {
         "encoder": types.Blob(
@@ -180,7 +180,7 @@ class Sam308m(Sam):
     }
 
 
-class Sam636m(Sam):
+class Sam600m(Sam):
     name = "sam:latest"
 
     _blobs = {
@@ -195,6 +195,6 @@ class Sam636m(Sam):
     }
 
 
-apis.register_model_type(Sam91m)
-apis.register_model_type(Sam308m)
-apis.register_model_type(Sam636m)
+apis.register_model_type(Sam100m)
+apis.register_model_type(Sam300m)
+apis.register_model_type(Sam600m)
